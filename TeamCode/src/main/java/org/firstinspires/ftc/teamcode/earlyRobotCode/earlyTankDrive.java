@@ -59,14 +59,6 @@ public class earlyTankDrive extends LinearOpMode
             motorLB.setPower(gamepad1.left_stick_y);
             motorLF.setPower(-gamepad1.left_stick_y);
 
-
-
-
-
-
-
-
-
         }
     }
 /*
