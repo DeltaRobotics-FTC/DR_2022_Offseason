@@ -26,6 +26,8 @@ public class earlyTankDrive extends LinearOpMode
     public Servo Claw0 = null;
     public Servo Claw1 = null;
 
+    public double slidePower = 0;
+
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -39,11 +41,11 @@ public class earlyTankDrive extends LinearOpMode
 
         //ElapsedTime whatever = new ElapsedTime();
 
-        int slidePosDown = 1000;
-        int slidePosJunction = 1500;
-        int slidePosLow = 2000;
-        int slidePosMid = 3000;
-        int slidePosTall = 5000;
+        int slidePosDown = 0;
+        int slidePosJunction = 500;
+        int slidePosLow = 3000;
+        int slidePosMid = 4300;
+        int slidePosTall;
 
         motorRF = hardwareMap.dcMotor.get("motorRF");
         motorLF = hardwareMap.dcMotor.get("motorLF");
@@ -76,74 +78,90 @@ public class earlyTankDrive extends LinearOpMode
         while (opModeIsActive())
         {
             //Code goes here
-            motorRF.setPower(gamepad1.right_stick_y);
-            motorRB.setPower(-gamepad1.right_stick_y);
-            motorLB.setPower(gamepad1.left_stick_y);
-            motorLF.setPower(-gamepad1.left_stick_y);
-
-            if (gamepad2.left_bumper) {
-                Claw0.setPosition(1);
-                Claw1.setPosition(0);
-            }
-            else if (gamepad2.right_bumper){
-                Claw0.setPosition(0);
-                Claw1.setPosition(1);
+            if (gamepad1.dpad_down) {
+                motorRF.setPower(.5 * (gamepad1.right_stick_y + gamepad1.right_stick_x));
+                motorRB.setPower(.5 * (-(gamepad1.right_stick_y + gamepad1.right_stick_x)));
+                motorLB.setPower(.5 * (gamepad1.right_stick_y - gamepad1.right_stick_x));
+                motorLF.setPower(.5 * (-(gamepad1.right_stick_y - gamepad1.right_stick_x)));
             }
 
+            else if (gamepad1.dpad_up) {
+                motorRF.setPower(.1 * (gamepad1.right_stick_y + gamepad1.right_stick_x));
+                motorRB.setPower(.1 * (-(gamepad1.right_stick_y + gamepad1.right_stick_x)));
+                motorLB.setPower(.1 * (gamepad1.right_stick_y - gamepad1.right_stick_x));
+                motorLF.setPower(.1 * (-(gamepad1.right_stick_y - gamepad1.right_stick_x)));
+            }
+
+            else {
+                motorRF.setPower(1 * (gamepad1.right_stick_y + gamepad1.right_stick_x));
+                motorRB.setPower(1 * (-(gamepad1.right_stick_y + gamepad1.right_stick_x)));
+                motorLB.setPower(1 * (gamepad1.right_stick_y - gamepad1.right_stick_x));
+                motorLF.setPower(1 * (-(gamepad1.right_stick_y - gamepad1.right_stick_x)));
+            }
+
+            if (gamepad1.left_bumper) {
+                Claw0.setPosition(.6);
+                Claw1.setPosition(.4);
+            }
+            else if (gamepad1.right_bumper){
+                Claw0.setPosition(.3);
+                Claw1.setPosition(.7);
+            }
 
 
-            if (gamepad2.a){
-                Slide0.setTargetPosition(slidePosDown);
-                Slide1.setTargetPosition(slidePosDown);
-                Slide0.setPower(.2);
-                Slide1.setPower(.2);
-                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slidePower = gamepad2.left_stick_y * .75;
+
+            if (Slide1.getCurrentPosition() > 0 && slidePower > 0){
+                Slide1.setPower(0);
+                Slide0.setPower(0);
             }
-            else if (gamepad2.b){
-                Slide0.setTargetPosition(slidePosJunction);
-                Slide1.setTargetPosition(slidePosJunction);
-                Slide0.setPower(.2);
-                Slide1.setPower(.2);
-                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            else if (gamepad2.x){
-                Slide0.setTargetPosition(slidePosLow);
-                Slide1.setTargetPosition(slidePosLow);
-                Slide0.setPower(.2);
-                Slide1.setPower(.2);
-                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            else if (gamepad2.y){
-                Slide0.setTargetPosition(slidePosMid);
-                Slide1.setTargetPosition(slidePosMid);
-                Slide0.setPower(.2);
-                Slide1.setPower(.2);
-                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            else if (gamepad2.dpad_up){
-                Slide0.setTargetPosition(slidePosTall);
-                Slide1.setTargetPosition(slidePosTall);
-                Slide0.setPower(.7);
-                Slide1.setPower(.7);
-                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            else if (gamepad2.dpad_down){
-                Slide0.setTargetPosition(20000);
-                Slide1.setTargetPosition(20000);
-                Slide0.setPower(.7);
-                Slide1.setPower(.7);
-                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            else if (Slide1.getCurrentPosition() < -4300 && slidePower < 0){
+                Slide1.setPower(0);
+                Slide0.setPower(0);
             }
             else {
-                Slide0.setPower(gamepad2.left_stick_y*0.2);
-                Slide1.setPower(gamepad2.left_stick_y*0.2);
+
+                Slide1.setPower(slidePower);
+                Slide0.setPower(slidePower);
+                Slide1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                Slide0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
+
+            /*
+            if (gamepad2.a) {
+                Slide1.setTargetPosition(slidePosDown);
+                Slide0.setTargetPosition(slidePosDown);
+                Slide1.setPower(.7);
+                Slide0.setPower(.7);
+                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            if(gamepad2.b){
+                Slide1.setTargetPosition(slidePosJunction);
+                Slide0.setTargetPosition(slidePosJunction);
+                Slide1.setPower(.7);
+                Slide0.setPower(.7);
+                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            if(gamepad2.x){
+                Slide1.setTargetPosition(slidePosLow);
+                Slide0.setTargetPosition(slidePosLow);
+                Slide1.setPower(.7);
+                Slide0.setPower(.7);
+                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            if(gamepad2.y){
+                Slide1.setTargetPosition(slidePosMid);
+                Slide0.setTargetPosition(slidePosMid);
+                Slide1.setPower(.7);
+                Slide0.setPower(.7);
+                Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            */
 
             telemetry.addData("Slide0Encoder",Slide0.getCurrentPosition());
             telemetry.addData("Slide1Encoder",Slide1.getCurrentPosition());
@@ -151,6 +169,13 @@ public class earlyTankDrive extends LinearOpMode
             telemetry.addData("Slide1Power",Slide1.getPower());
 
             telemetry.update();
+
+            //Slide0.setTargetPosition(20000);
+            //Slide1.setTargetPosition(20000);
+            //Slide0.setPower(.7);
+            //Slide1.setPower(.7);
+            //Slide1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //Slide0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         }
     }
